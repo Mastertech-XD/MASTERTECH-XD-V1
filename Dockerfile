@@ -6,7 +6,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 USER node
 RUN git clone https://github.com/Mastertech-XD/MASTERTECH-XD-V2.git
-WORKDIR /home/node/MALVIN-XD
+WORKDIR /home/node/Mastertech-XD
 RUN chmod -R 755 /home/node/Mastertech-XD/
 RUN yarn install --network-concurrency 1
 EXPOSE 7860
