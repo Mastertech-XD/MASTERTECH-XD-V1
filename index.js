@@ -1,26 +1,20 @@
 /**
  * Mastertech-XD - A WhatsApp Bot
  * Copyright (c) 2025 Masterpeace Elite
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the MIT License.
- * 
- * Credits:
- * - Baileys Library by @adiwajshing
- * - Pair Code implementation inspired by TechGod143 & DGXEON
  */
-import './settings.js';
-import { Boom } from '@hapi/boom';
-import fs from 'fs';
-import chalk from 'chalk';
-import FileType from 'file-type';
-import path from 'path';
-import axios from 'axios';
-import { handleMessages, handleGroupParticipantUpdate, handleStatus } from './main.js';
-import PhoneNumber from 'awesome-phonenumber';
-import { imageToWebp, videoToWebp, writeExifImg, writeExifVid } from './lib/exif.js';
-import { smsg, isUrl, generateMessageTag, getBuffer, getSizeMedia, fetch, sleep, reSize } from './lib/myfunc.js';
-import makeWASocket, {
+require('./settings');
+const { Boom } = require('@hapi/boom');
+const fs = require('fs');
+const chalk = require('chalk');
+const FileType = require('file-type');
+const path = require('path');
+const axios = require('axios');
+const { handleMessages, handleGroupParticipantUpdate, handleStatus } = require('./main');
+const PhoneNumber = require('awesome-phonenumber');
+const { imageToWebp, videoToWebp, writeExifImg, writeExifVid } = require('./lib/exif');
+const { smsg, isUrl, generateMessageTag, getBuffer, getSizeMedia, fetch, sleep, reSize } = require('./lib/myfunc');
+const makeWASocket = require("@whiskeysockets/baileys").default;
+const {
     useMultiFileAuthState,
     DisconnectReason,
     fetchLatestBaileysVersion,
@@ -34,39 +28,37 @@ import makeWASocket, {
     jidNormalizedUser,
     makeCacheableSignalKeyStore,
     delay
-} from "@whiskeysockets/baileys";
-import NodeCache from "node-cache";
-import pino from "pino";
-import readline from "readline";
-import { parsePhoneNumber } from "libphonenumber-js";
-import { PHONENUMBER_MCC } from '@whiskeysockets/baileys/lib/Utils/generics.js';
+} = require("@whiskeysockets/baileys");
+const NodeCache = require("node-cache");
+const pino = require("pino");
+const readline = require("readline");
 
 // Import lightweight store
-import store from './lib/lightweight_store.js';
+const store = require('./lib/lightweight_store');
 
 // Import settings
-import settings from './settings.js' assert { type: 'json' };
+const settings = require('./settings');
 
 // Initialize store
 store.readFromFile();
 setInterval(() => store.writeToFile(), settings.storeWriteInterval || 10000);
 
-// Memory optimization - Force garbage collection if available
+// Memory optimization
 setInterval(() => {
     if (global.gc) {
         global.gc();
         console.log('🧹 Garbage collection completed');
     }
-}, 60_000); // every 1 minute
+}, 60_000);
 
-// Memory monitoring - Restart if RAM gets too high
+// Memory monitoring
 setInterval(() => {
     const used = process.memoryUsage().rss / 1024 / 1024;
     if (used > 400) {
         console.log('⚠️ RAM too high (>400MB), restarting bot...');
-        process.exit(1); // Panel will auto-restart
+        process.exit(1);
     }
-}, 30_000); // check every 30 seconds
+}, 30_000);
 
 let phoneNumber = "911234567890";
 let owner = JSON.parse(fs.readFileSync('./data/owner.json'));
@@ -76,13 +68,11 @@ global.themeemoji = "•";
 const pairingCode = !!phoneNumber || process.argv.includes("--pairing-code");
 const useMobile = process.argv.includes("--mobile");
 
-// Only create readline interface if we're in an interactive environment
 const rl = process.stdin.isTTY ? readline.createInterface({ input: process.stdin, output: process.stdout }) : null;
 const question = (text) => {
     if (rl) {
         return new Promise((resolve) => rl.question(text, resolve));
     } else {
-        // In non-interactive environment, use ownerNumber from settings
         return Promise.resolve(settings.ownerNumber || phoneNumber);
     }
 };
@@ -128,7 +118,6 @@ async function startXeonBotInc() {
             if (!XeonBotInc.public && !mek.key.fromMe && chatUpdate.type === 'notify') return;
             if (mek.key.id.startsWith('BAE5') && mek.key.id.length === 16) return;
 
-            // Clear message retry cache to prevent memory bloat
             if (XeonBotInc?.msgRetryCounterCache) {
                 XeonBotInc.msgRetryCounterCache.clear();
             }
@@ -137,7 +126,6 @@ async function startXeonBotInc() {
                 await handleMessages(XeonBotInc, chatUpdate, true);
             } catch (err) {
                 console.error("Error in handleMessages:", err);
-                // Only try to send error message if we have a valid chatId
                 if (mek.key && mek.key.remoteJid) {
                     await XeonBotInc.sendMessage(mek.key.remoteJid, {
                         text: '❌ An error occurred while processing your message.',
@@ -158,7 +146,6 @@ async function startXeonBotInc() {
         }
     });
 
-    // Add these event handlers for better functionality
     XeonBotInc.decodeJid = (jid) => {
         if (!jid) return jid;
         if (/:\d+@/gi.test(jid)) {
@@ -193,7 +180,6 @@ async function startXeonBotInc() {
     };
 
     XeonBotInc.public = true;
-
     XeonBotInc.serializeM = (m) => smsg(XeonBotInc, m, store);
 
     // Handle pairing code
@@ -207,10 +193,8 @@ async function startXeonBotInc() {
             phoneNumber = await question(chalk.bgBlack(chalk.greenBright(`Please type your WhatsApp number 😍\nFormat: 6281376552730 (without + or spaces) : `)));
         }
 
-        // Clean the phone number - remove any non-digit characters
         phoneNumber = phoneNumber.replace(/[^0-9]/g, '');
 
-        // Validate the phone number using awesome-phonenumber
         const pn = require('awesome-phonenumber');
         if (!pn('+' + phoneNumber).isValid()) {
             console.log(chalk.red('Invalid phone number. Please enter your full international number (e.g., 15551234567 for US, 447911123456 for UK, etc.) without + or spaces.'));
@@ -282,7 +266,7 @@ Thank you for CONNECTING TO MASTERTECH-XD ENJOY! 💙`,
             const statusCode = lastDisconnect?.error?.output?.statusCode;
             if (statusCode === DisconnectReason.loggedOut || statusCode === 401) {
                 try {
-                    fs.rmSync('./session', { recursive: true, force: true });
+                    require('fs').rmSync('./session', { recursive: true, force: true });
                 } catch { }
                 console.log(chalk.red('Session logged out. Please re-authenticate.'));
                 startXeonBotInc();
@@ -293,21 +277,17 @@ Thank you for CONNECTING TO MASTERTECH-XD ENJOY! 💙`,
     });
 
     XeonBotInc.ev.on('creds.update', saveCreds);
-
     XeonBotInc.ev.on('group-participants.update', async (update) => {
         await handleGroupParticipantUpdate(XeonBotInc, update);
     });
-
     XeonBotInc.ev.on('messages.upsert', async (m) => {
         if (m.messages[0].key && m.messages[0].key.remoteJid === 'status@broadcast') {
             await handleStatus(XeonBotInc, m);
         }
     });
-
     XeonBotInc.ev.on('status.update', async (status) => {
         await handleStatus(XeonBotInc, status);
     });
-
     XeonBotInc.ev.on('messages.reaction', async (status) => {
         await handleStatus(XeonBotInc, status);
     });
@@ -329,9 +309,10 @@ process.on('unhandledRejection', (err) => {
     console.error('Unhandled Rejection:', err);
 });
 
-const file = new URL(import.meta.url).pathname;
+let file = require.resolve(__filename);
 fs.watchFile(file, () => {
     fs.unwatchFile(file);
-    console.log(chalk.redBright(`Update ${file}`));
-    import(file + '?update=' + Date.now());
+    console.log(chalk.redBright(`Update ${__filename}`));
+    delete require.cache[file];
+    require(file);
 });
