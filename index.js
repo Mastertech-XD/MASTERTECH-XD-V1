@@ -10,7 +10,6 @@ const FileType = require('file-type');
 const path = require('path');
 const axios = require('axios');
 const { handleMessages, handleGroupParticipantUpdate, handleStatus } = require('./main');
-const PhoneNumber = require('awesome-phonenumber');
 const { imageToWebp, videoToWebp, writeExifImg, writeExifVid } = require('./lib/exif');
 const { smsg, isUrl, generateMessageTag, getBuffer, getSizeMedia, fetch, sleep, reSize } = require('./lib/myfunc');
 const makeWASocket = require("@whiskeysockets/baileys").default;
@@ -162,7 +161,7 @@ async function startXeonBotInc() {
     });
 
     XeonBotInc.getName = (jid, withoutContact = false) => {
-        id = XeonBotInc.decodeJid(jid);
+        let id = XeonBotInc.decodeJid(jid);
         withoutContact = XeonBotInc.withoutContact || withoutContact;
         let v;
         if (id.endsWith("@g.us")) return new Promise(async (resolve) => {
@@ -195,9 +194,9 @@ async function startXeonBotInc() {
 
         phoneNumber = phoneNumber.replace(/[^0-9]/g, '');
 
-        const pn = require('awesome-phonenumber');
-        if (!pn('+' + phoneNumber).isValid()) {
-            console.log(chalk.red('Invalid phone number. Please enter your full international number (e.g., 15551234567 for US, 447911123456 for UK, etc.) without + or spaces.'));
+        // Simple phone validation since awesome-phonenumber is removed
+        if (phoneNumber.length < 10) {
+            console.log(chalk.red('Invalid phone number. Please enter your full number without + or spaces.'));
             process.exit(1);
         }
 
