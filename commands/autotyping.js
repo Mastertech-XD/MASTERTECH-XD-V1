@@ -1,5 +1,5 @@
 /**
- * Knight Bot - A WhatsApp Bot
+ * MASTERTECH-XD V1 Bot - A WhatsApp Bot
  * Autotyping Command - Shows fake typing status
  */
 
@@ -29,7 +29,7 @@ async function autotypingCommand(sock, chatId, message) {
                     isForwarded: true,
                     forwardedNewsletterMessageInfo: {
                         newsletterJid: '120363393631540851@newsletter',
-                        newsletterName: 'Mastertech-XD',
+                        newsletterName: 'MASTERTECH-XD V1',
                         serverMessageId: -1
                     }
                 }
@@ -60,7 +60,7 @@ async function autotypingCommand(sock, chatId, message) {
                         isForwarded: true,
                         forwardedNewsletterMessageInfo: {
                             newsletterJid: '120363393631540851@newsletter',
-                            newsletterName: 'Mastertech-XD',
+                            newsletterName: 'MASTERTECH-XD V1',
                             serverMessageId: -1
                         }
                     }
@@ -83,7 +83,7 @@ async function autotypingCommand(sock, chatId, message) {
                 isForwarded: true,
                 forwardedNewsletterMessageInfo: {
                     newsletterJid: '120363393631540851@newsletter',
-                    newsletterName: 'Mastertech-XD',
+                    newsletterName: 'MASTERTECH-XD V1',
                     serverMessageId: -1
                 }
             }
@@ -98,7 +98,7 @@ async function autotypingCommand(sock, chatId, message) {
                 isForwarded: true,
                 forwardedNewsletterMessageInfo: {
                     newsletterJid: '120363393631540851@newsletter',
-                    newsletterName: 'Mastertech-XD',
+                    newsletterName: 'MASTERTECH-XD V1',
                     serverMessageId: -1
                 }
             }

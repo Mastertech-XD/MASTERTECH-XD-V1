@@ -12,7 +12,7 @@ async function imagineCommand(sock, chatId, message) {
         
         if (!imagePrompt) {
             await sock.sendMessage(chatId, {
-                text: 'Please provide a prompt for the image generation.\nExample: .imagine a beautiful sunset over mountains'
+                text: '🖌️ *Art Creation Request*\n\nPlease provide your creative vision for the artwork.\n\nExample: .imagine a majestic castle in the clouds'
             }, {
                 quoted: message
             });
@@ -21,7 +21,7 @@ async function imagineCommand(sock, chatId, message) {
 
         // Send processing message
         await sock.sendMessage(chatId, {
-            text: '🎨 Generating your image... Please wait.'
+            text: '✨ *Canvas Preparation*\n\nYour masterpiece is being crafted...\nPlease allow a moment for creation.'
         }, {
             quoted: message
         });
@@ -30,11 +30,7 @@ async function imagineCommand(sock, chatId, message) {
         const enhancedPrompt = enhancePrompt(imagePrompt);
 
         // Make API request
-        const response = await axios.get(`https://api.shizo.top/ai/imagine/flux`, {
-            params: {
-                apikey: 'mastertech-xd',
-                prompt: enhancedPrompt
-            },
+        const response = await axios.get(`https://shizoapi.onrender.com/api/ai/imagine?apikey=shizo&query=${encodeURIComponent(enhancedPrompt)}`, {
             responseType: 'arraybuffer'
         });
 
@@ -44,7 +40,7 @@ async function imagineCommand(sock, chatId, message) {
         // Send the generated image
         await sock.sendMessage(chatId, {
             image: imageBuffer,
-            caption: `🎨 Generated image for prompt: "${imagePrompt}"`
+            caption: `🎨 *Artwork Complete*\n\nVision: "${imagePrompt}"\n\n*Created by MASTERTECH-XD V1*`
         }, {
             quoted: message
         });
@@ -52,7 +48,7 @@ async function imagineCommand(sock, chatId, message) {
     } catch (error) {
         console.error('Error in imagine command:', error);
         await sock.sendMessage(chatId, {
-            text: '❌ Failed to generate image. Please try again later.'
+            text: '❌ *Creation Interrupted*\n\nThe artistic process encountered an obstacle.\nPlease try your vision again shortly.'
         }, {
             quoted: message
         });
@@ -85,4 +81,4 @@ function enhancePrompt(prompt) {
     return `${prompt}, ${selectedEnhancers.join(', ')}`;
 }
 
-module.exports = imagineCommand; 
+module.exports = imagineCommand;

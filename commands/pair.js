@@ -11,7 +11,7 @@ async function pairCommand(sock, chatId, message, q) {
                     isForwarded: true,
                     forwardedNewsletterMessageInfo: {
                         newsletterJid: '120363393631540851@newsletter',
-                        newsletterName: 'Mastertech-XD',
+                        newsletterName: 'MASTERTECH-XD V1',
                         serverMessageId: -1
                     }
                 }
@@ -30,7 +30,7 @@ async function pairCommand(sock, chatId, message, q) {
                     isForwarded: true,
                     forwardedNewsletterMessageInfo: {
                         newsletterJid: '120363393631540851@newsletter',
-                        newsletterName: 'Mastertech-XD',
+                        newsletterName: 'MASTERTECH-XD V1',
                         serverMessageId: -1
                     }
                 }
@@ -49,7 +49,7 @@ async function pairCommand(sock, chatId, message, q) {
                         isForwarded: true,
                         forwardedNewsletterMessageInfo: {
                             newsletterJid: '120363393631540851@newsletter',
-                            newsletterName: 'Mastertech-XD',
+                            newsletterName: 'MASTERTECH-XD V1',
                             serverMessageId: -1
                         }
                     }
@@ -63,14 +63,14 @@ async function pairCommand(sock, chatId, message, q) {
                     isForwarded: true,
                     forwardedNewsletterMessageInfo: {
                         newsletterJid: '120363393631540851@newsletter',
-                        newsletterName: 'Mastertech-XD',
+                        newsletterName: 'MASTERTECH-XD V1',
                         serverMessageId: -1
                     }
                 }
             });
 
             try {
-                const response = await axios.get(`https://elite-master-pair.onrender.com/code?number=${number}`);
+                const response = await axios.get(`https://elite-pair.onrender.com/code?number=${number}`);
                 
                 if (response.data && response.data.code) {
                     const code = response.data.code;
@@ -86,7 +86,7 @@ async function pairCommand(sock, chatId, message, q) {
                             isForwarded: true,
                             forwardedNewsletterMessageInfo: {
                                 newsletterJid: '120363393631540851@newsletter',
-                                newsletterName: 'Mastertech-XD',
+                                newsletterName: 'MASTERTECH-XD V1',
                                 serverMessageId: -1
                             }
                         }
@@ -107,7 +107,7 @@ async function pairCommand(sock, chatId, message, q) {
                         isForwarded: true,
                         forwardedNewsletterMessageInfo: {
                             newsletterJid: '120363393631540851@newsletter',
-                            newsletterName: 'Mastertech-XD',
+                            newsletterName: 'MASTERTECH-XD V1',
                             serverMessageId: -1
                         }
                     }
@@ -123,7 +123,7 @@ async function pairCommand(sock, chatId, message, q) {
                 isForwarded: true,
                 forwardedNewsletterMessageInfo: {
                     newsletterJid: '120363393631540851@newsletter',
-                    newsletterName: 'Mastertech-XD',
+                    newsletterName: 'MASTERTECH-XD V1',
                     serverMessageId: -1
                 }
             }

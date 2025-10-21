@@ -1,5 +1,5 @@
 /**
- * mastertech-xd - A WhatsApp Bot
+ * MASTERTECH-XD V1 - A WhatsApp Bot
  * Autoread Command - Automatically read all messages
  */
 
@@ -23,17 +23,8 @@ async function autoreadCommand(sock, chatId, message) {
         // Check if sender is the owner (bot itself)
         if (!message.key.fromMe) {
             await sock.sendMessage(chatId, {
-                text: '❌ This command is only available for the owner!',
-                contextInfo: {
-                    forwardingScore: 1,
-                    isForwarded: true,
-                    forwardedNewsletterMessageInfo: {
-                        newsletterJid: '120363393631540851@newsletter',
-                        newsletterName: 'Mastertech-XD',
-                        serverMessageId: -1
-                    }
-                }
-            });
+                text: '🔒 This command is only available for the bot owner.'
+            }, { quoted: message });
             return;
         }
 
@@ -54,17 +45,8 @@ async function autoreadCommand(sock, chatId, message) {
                 config.enabled = false;
             } else {
                 await sock.sendMessage(chatId, {
-                    text: '❌ Invalid option! Use: .autoread on/off',
-                    contextInfo: {
-                        forwardingScore: 1,
-                        isForwarded: true,
-                        forwardedNewsletterMessageInfo: {
-                            newsletterJid: '120363393631540851@newsletter',
-                            newsletterName: 'Mastertech-XD',
-                            serverMessageId: -1
-                        }
-                    }
-                });
+                    text: `📝 *Autoread Configuration*\n\nCurrent Status: ${config.enabled ? '🟢 Enabled' : '🔴 Disabled'}\n\nUsage:\n.autoread on - Enable automatic reading\n.autoread off - Disable automatic reading`
+                }, { quoted: message });
                 return;
             }
         } else {
@@ -77,32 +59,14 @@ async function autoreadCommand(sock, chatId, message) {
         
         // Send confirmation message
         await sock.sendMessage(chatId, {
-            text: `✅ Auto-read has been ${config.enabled ? 'enabled' : 'disabled'}!`,
-            contextInfo: {
-                forwardingScore: 1,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363393631540851@newsletter',
-                    newsletterName: 'Mastertech-XD',
-                    serverMessageId: -1
-                }
-            }
-        });
+            text: `📨 *Autoread ${config.enabled ? 'Enabled' : 'Disabled'}*\n\nStatus: ${config.enabled ? '🟢 Active' : '🔴 Inactive'}\nMessages will ${config.enabled ? 'be automatically marked as read' : 'require manual reading'}.`
+        }, { quoted: message });
         
     } catch (error) {
         console.error('Error in autoread command:', error);
         await sock.sendMessage(chatId, {
-            text: '❌ Error processing command!',
-            contextInfo: {
-                forwardingScore: 1,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363393631540851@newsletter',
-                    newsletterName: 'Mastertech-XD',
-                    serverMessageId: -1
-                }
-            }
-        });
+            text: '❌ An error occurred while processing the autoread command.'
+        }, { quoted: message });
     }
 }
 
@@ -180,7 +144,7 @@ async function handleAutoread(sock, message) {
             // For regular messages, mark as read normally
             const key = { remoteJid: message.key.remoteJid, id: message.key.id, participant: message.key.participant };
             await sock.readMessages([key]);
-            //console.log('✅ Marked message as read from ' + (message.key.participant || message.key.remoteJid).split('@')[0]);
+            //console.log('📨 Message marked as read from ' + (message.key.participant || message.key.remoteJid).split('@')[0]);
             return true; // Indicates message was marked as read
         }
     }

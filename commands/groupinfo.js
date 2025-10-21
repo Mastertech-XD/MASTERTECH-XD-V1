@@ -21,20 +21,31 @@ async function groupInfoCommand(sock, chatId, msg) {
 
         // Create info text
         const text = `
-┌──「 *INFO GROUP* 」
-▢ *♻️ID:*
-   • ${groupMetadata.id}
-▢ *🔖NAME* : 
-• ${groupMetadata.subject}
-▢ *👥Members* :
-• ${participants.length}
-▢ *🤿Group Owner:*
-• @${owner.split('@')[0]}
-▢ *🕵🏻‍♂️Admins:*
-${listAdmin}
+╔═══════════════════╗
+   🏛️  GROUP INFORMATION
+╚═══════════════════╝
 
-▢ *📌Description* :
-   • ${groupMetadata.desc?.toString() || 'No description'}
+📋 *Group Details*
+
+┌─ *🆔 Group ID:*
+│  └─ ${groupMetadata.id}
+│
+├─ *📛 Group Name:*
+│  └─ ${groupMetadata.subject}
+│
+├─ *👥 Members Count:*
+│  └─ ${participants.length}
+│
+├─ *👑 Group Owner:*
+│  └─ @${owner.split('@')[0]}
+│
+├─ *⚜️ Administrators:*
+│  ${listAdmin.split('\n').map(admin => `  └─ ${admin}`).join('\n│  ')}
+│
+└─ *📝 Description:*
+   └─ ${groupMetadata.desc?.toString() || 'No description provided'}
+
+✨ *Information provided by MASTERTECH-XD V1*
 `.trim();
 
         // Send the message with image and mentions

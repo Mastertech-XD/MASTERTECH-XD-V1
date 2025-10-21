@@ -21,11 +21,14 @@ async function staffCommand(sock, chatId, msg) {
 
         // Create staff text
         const text = `
-≡ *GROUP ADMINS* _${groupMetadata.subject}_
+╔═══✦⋅■ 𝗚𝗥𝗢𝗨𝗣 𝗔𝗗𝗠𝗜𝗡𝗦 ⋅■✦═══╗
 
-┌─⊷ *ADMINS*
-▢ ${listAdmin}
-└───────────
+║  🏛️  ${groupMetadata.subject}
+║
+║  👑 𝗔𝗗𝗠𝗜𝗡𝗜𝗦𝗧𝗥𝗔𝗧𝗢𝗥𝗦:
+║  ${listAdmin.split('\n').map(admin => `║   └─ ${admin}`).join('\n║  ')}
+║
+╚═══✦⋅■ 𝗠𝗔𝗦𝗧𝗘𝗥𝗧𝗘𝗖𝗛-𝗫𝗗 𝗩𝟭 ⋅■✦═══╝
 `.trim();
 
         // Send the message with image and mentions

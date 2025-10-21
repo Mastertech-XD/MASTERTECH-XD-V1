@@ -3,6 +3,34 @@ const { igdl } = require("ruhend-scraper");
 // Store processed message IDs to prevent duplicates
 const processedMessages = new Set();
 
+// Function to extract unique media URLs with simple deduplication
+function extractUniqueMedia(mediaData) {
+    const uniqueMedia = [];
+    const seenUrls = new Set();
+    
+    for (const media of mediaData) {
+        if (!media.url) continue;
+        
+        // Only check for exact URL duplicates
+        if (!seenUrls.has(media.url)) {
+            seenUrls.add(media.url);
+            uniqueMedia.push(media);
+        }
+    }
+    
+    return uniqueMedia;
+}
+
+// Function to validate media URL
+function isValidMediaUrl(url) {
+    if (!url || typeof url !== 'string') return false;
+    
+    // Accept any URL that looks like media
+    return url.includes('cdninstagram.com') || 
+           url.includes('instagram') || 
+           url.includes('http');
+}
+
 async function instagramCommand(sock, chatId, message) {
     try {
         // Check if message has already been processed
@@ -22,7 +50,7 @@ async function instagramCommand(sock, chatId, message) {
         
         if (!text) {
             return await sock.sendMessage(chatId, { 
-                text: "Please provide an Instagram link for the video."
+                text: "📥 *Content Request*\n\nPlease provide an Instagram link to retrieve the media content."
             });
         }
 
@@ -39,7 +67,7 @@ async function instagramCommand(sock, chatId, message) {
         
         if (!isValidUrl) {
             return await sock.sendMessage(chatId, { 
-                text: "That is not a valid Instagram link. Please provide a valid Instagram post, reel, or video link."
+                text: "🔗 *Invalid Link Format*\n\nThat does not appear to be a valid Instagram URL.\nPlease provide a valid Instagram post, reel, or video link."
             });
         }
 
@@ -51,40 +79,66 @@ async function instagramCommand(sock, chatId, message) {
         
         if (!downloadData || !downloadData.data || downloadData.data.length === 0) {
             return await sock.sendMessage(chatId, { 
-                text: "No media found at the provided link."
+                text: "📭 *Content Unavailable*\n\nNo media found at the provided link.\nThe content may be private, removed, or the link may be invalid."
             });
         }
 
         const mediaData = downloadData.data;
-        for (let i = 0; i < Math.min(20, mediaData.length); i++) {
-            const media = mediaData[i];
-            const mediaUrl = media.url;
+        
+        // Simple deduplication - just remove exact URL duplicates
+        const uniqueMedia = extractUniqueMedia(mediaData);
+        
+        // Limit to maximum 20 unique media items
+        const mediaToDownload = uniqueMedia.slice(0, 20);
+        
+        if (mediaToDownload.length === 0) {
+            return await sock.sendMessage(chatId, { 
+                text: "📭 *No Valid Media*\n\nNo downloadable content found.\nThis may be a private post or the content is not accessible."
+            });
+        }
 
-            // Check if URL ends with common video extensions
-            const isVideo = /\.(mp4|mov|avi|mkv|webm)$/i.test(mediaUrl) || 
-                          media.type === 'video' || 
-                          text.includes('/reel/') || 
-                          text.includes('/tv/');
+        // Download all media silently without status messages
+        for (let i = 0; i < mediaToDownload.length; i++) {
+            try {
+                const media = mediaToDownload[i];
+                const mediaUrl = media.url;
 
-            if (isVideo) {
-                await sock.sendMessage(chatId, {
-                    video: { url: mediaUrl },
-                    mimetype: "video/mp4",
-                    caption: "𝗗𝗢𝗪𝗡𝗟𝗢𝗔𝗗𝗘𝗗 𝗕𝗬 𝗠𝗔𝗦𝗧𝗘𝗥𝗧𝗘𝗖𝗛-𝗫𝗗"
-                }, { quoted: message });
-            } else {
-                await sock.sendMessage(chatId, {
-                    image: { url: mediaUrl },
-                    caption: "𝗗𝗢𝗪𝗡𝗟𝗢𝗔𝗗𝗘𝗗 𝗕𝗬 𝗠𝗔𝗦𝗧𝗘𝗥𝗧𝗘𝗖𝗛-𝗫𝗗"
-                }, { quoted: message });
+                // Check if URL ends with common video extensions
+                const isVideo = /\.(mp4|mov|avi|mkv|webm)$/i.test(mediaUrl) || 
+                              media.type === 'video' || 
+                              text.includes('/reel/') || 
+                              text.includes('/tv/');
+
+                if (isVideo) {
+                    await sock.sendMessage(chatId, {
+                        video: { url: mediaUrl },
+                        mimetype: "video/mp4",
+                        caption: "𝗗𝗢𝗪𝗡𝗟𝗢𝗔𝗗𝗘𝗗 𝗕𝗬 𝗠𝗔𝗦𝗧𝗘𝗥𝗧𝗘𝗖𝗛-𝗫𝗗 𝗩𝟭"
+                    }, { quoted: message });
+                } else {
+                    await sock.sendMessage(chatId, {
+                        image: { url: mediaUrl },
+                        caption: "𝗗𝗢𝗪𝗡𝗟𝗢𝗔𝗗𝗘𝗗 𝗕𝗬 𝗠𝗔𝗦𝗧𝗘𝗥𝗧𝗘𝗖𝗛-𝗫𝗗 𝗩𝟭"
+                    }, { quoted: message });
+                }
+                
+                // Add small delay between downloads to prevent rate limiting
+                if (i < mediaToDownload.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+                
+            } catch (mediaError) {
+                console.error(`Error downloading media ${i + 1}:`, mediaError);
+                // Continue with next media if one fails
             }
         }
+
     } catch (error) {
         console.error('Error in Instagram command:', error);
         await sock.sendMessage(chatId, { 
-            text: "An error occurred while processing the request."
+            text: "❌ *Processing Error*\n\nAn unexpected error occurred while retrieving the content.\nPlease verify the link and try again."
         });
     }
 }
 
-module.exports = instagramCommand; 
+module.exports = instagramCommand;

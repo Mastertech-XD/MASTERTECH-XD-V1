@@ -33,11 +33,19 @@ async function promoteCommand(sock, chatId, mentionedJids, message) {
         // Get promoter's name (the bot user in this case)
         const promoterJid = sock.user.id;
         
-        const promotionMessage = `*『 GROUP PROMOTION 』*\n\n` +
-            `👥 *Promoted User${userToPromote.length > 1 ? 's' : ''}:*\n` +
-            `${usernames.map(name => `• ${name}`).join('\n')}\n\n` +
-            `👑 *Promoted By:* @${promoterJid.split('@')[0]}\n\n` +
-            `📅 *Date:* ${new Date().toLocaleString()}`;
+        const promotionMessage = `
+╔═══✦⋅■ 𝙋𝙍𝙊𝙈𝙊𝙏𝙄𝙊𝙉 𝘼𝙇𝙀𝙍𝙏 ⋅■✦═══╗
+
+║  👑 𝗡𝗲𝘄 𝗔𝗱𝗺𝗶𝗻𝘀:
+║  ${usernames.map(name => `║   └─ ${name}`).join('\n║  ')}
+║
+║  ⚡ 𝗕𝘆: @${promoterJid.split('@')[0]}
+║  🕒 ${new Date().toLocaleString()}
+║
+║  🎉 𝗖𝗼𝗻𝗴𝗿𝗮𝘁𝘂𝗹𝗮𝘁𝗶𝗼𝗻𝘀!
+
+╚═══✦⋅■ 𝗠𝗔𝗦𝗧𝗘𝗥𝗧𝗘𝗖𝗛-𝗫𝗗 𝗩𝟭 ⋅■✦═══╝
+`.trim();
         await sock.sendMessage(chatId, { 
             text: promotionMessage,
             mentions: [...userToPromote, promoterJid]
@@ -74,11 +82,19 @@ async function handlePromotionEvent(sock, groupId, participants, author) {
             promotedBy = 'System';
         }
 
-        const promotionMessage = `*『 GROUP PROMOTION 』*\n\n` +
-            `👥 *Promoted User${participants.length > 1 ? 's' : ''}:*\n` +
-            `${promotedUsernames.map(name => `• ${name}`).join('\n')}\n\n` +
-            `👑 *Promoted By:* ${promotedBy}\n\n` +
-            `📅 *Date:* ${new Date().toLocaleString()}`;
+        const promotionMessage = `
+╔═══✦⋅■ 𝙋𝙍𝙊𝙈𝙊𝙏𝙄𝙊𝙉 𝘼𝙇𝙀𝙍𝙏 ⋅■✦═══╗
+
+║  👑 𝗡𝗲𝘄 𝗔𝗱𝗺𝗶𝗻𝘀:
+║  ${promotedUsernames.map(name => `║   └─ ${name}`).join('\n║  ')}
+║
+║  ⚡ 𝗕𝘆: ${promotedBy}
+║  🕒 ${new Date().toLocaleString()}
+║
+║  🎉 𝗖𝗼𝗻𝗴𝗿𝗮𝘁𝘂𝗹𝗮𝘁𝗶𝗼𝗻𝘀!
+
+╚═══✦⋅■ 𝗠𝗔𝗦𝗧𝗘𝗥𝗧𝗘𝗖𝗛-𝗫𝗗 𝗩𝟭 ⋅■✦═══╝
+`.trim();
         
         await sock.sendMessage(groupId, {
             text: promotionMessage,
