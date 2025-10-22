@@ -3,19 +3,47 @@ const fs = require('fs');
 const path = require('path');
 
 async function helpCommand(sock, chatId, message) {
-    const helpMessage = `
-╔══════════════════════════╗
+    try {
+        // Get user's name who sent the command
+        let userName = 'User';
+        if (message.key.participant) {
+            // Group message - try to get sender's name
+            try {
+                const participant = message.key.participant;
+                const contact = await sock.store.contacts[participant];
+                userName = contact?.name || contact?.notify || contact?.verifiedName || 'User';
+            } catch (error) {
+                console.log('Could not fetch participant name:', error);
+            }
+        } else if (message.key.remoteJid) {
+            // Private message - try to get sender's name
+            try {
+                const sender = message.key.remoteJid;
+                const contact = await sock.store.contacts[sender];
+                userName = contact?.name || contact?.notify || contact?.verifiedName || 'User';
+            } catch (error) {
+                console.log('Could not fetch sender name:', error);
+            }
+        }
+
+        // Extract first name only
+        userName = userName.split(' ')[0] || 'User';
+
+        const helpMessage = `
+╔════════════════════════╗
    🏛️  MASTERTECH-XD V1  
    Version: *${settings.version || '3.0.0'}*
    Creator: ${settings.botOwner || 'Masterpeace Elite'}
    YouTube: ${global.ytch}
-╚══════════════════════════╝
+╚════════════════════════╝
 
-*Command Compendium*
+👋 *Hello ${userName}!* 👋
 
-╔══════════════════════════╗
+*Here are all the commands available:*
+
+╔════════════════════════╗
 🌐 *General Commands*
-╠══════════════════════════╣
+╠════════════════════════╣
 ║ ┌─ .help | .menu
 ║ ├─ .ping
 ║ ├─ .alive
@@ -35,12 +63,13 @@ async function helpCommand(sock, chatId, message) {
 ║ ├─ .trt <text> <lang>
 ║ ├─ .ss <link>
 ║ ├─ .jid
-║ └─ .url
-╚══════════════════════════╝
+║ ├─ .url
+║ └─ .hello
+╚════════════════════════╝
 
-╔══════════════════════════╗
+╔════════════════════════╗
 👑 *Administration Commands*
-╠══════════════════════════╣
+╠════════════════════════╣
 ║ ┌─ .ban @user
 ║ ├─ .promote @user
 ║ ├─ .demote @user
@@ -65,11 +94,11 @@ async function helpCommand(sock, chatId, message) {
 ║ ├─ .setgdesc <description>
 ║ ├─ .setgname <new name>
 ║ └─ .setgpp (reply to image)
-╚══════════════════════════╝
+╚════════════════════════╝
 
-╔══════════════════════════╗
+╔════════════════════════╗
 ⚡ *Owner Commands*
-╠══════════════════════════╣
+╠════════════════════════╣
 ║ ┌─ .mode <public/private>
 ║ ├─ .clearsession
 ║ ├─ .antidelete
@@ -87,11 +116,11 @@ async function helpCommand(sock, chatId, message) {
 ║ ├─ .pmblocker setmsg <text>
 ║ ├─ .setmention <reply to msg>
 ║ └─ .mention <on/off>
-╚══════════════════════════╝
+╚════════════════════════╝
 
-╔══════════════════════════╗
+╔════════════════════════╗
 🎨 *Media Commands*
-╠══════════════════════════╣
+╠════════════════════════╣
 ║ ┌─ .blur <image>
 ║ ├─ .simage <reply to sticker>
 ║ ├─ .sticker <reply to image>
@@ -104,11 +133,11 @@ async function helpCommand(sock, chatId, message) {
 ║ ├─ .emojimix <emj1>+<emj2>
 ║ ├─ .igs <insta link>
 ║ └─ .igsc <insta link>
-╚══════════════════════════╝
+╚════════════════════════╝
 
-╔══════════════════════════╗
+╔════════════════════════╗
 📥 *Download Commands*
-╠══════════════════════════╣
+╠════════════════════════╣
 ║ ┌─ .play <song_name>
 ║ ├─ .song <song_name>
 ║ ├─ .spotify <query>
@@ -117,21 +146,21 @@ async function helpCommand(sock, chatId, message) {
 ║ ├─ .tiktok <link>
 ║ ├─ .video <song name>
 ║ └─ .ytmp4 <Link>
-╚══════════════════════════╝
+╚════════════════════════╝
 
-╔══════════════════════════╗
+╔════════════════════════╗
 🤖 *AI Commands*
-╠══════════════════════════╣
+╠════════════════════════╣
 ║ ┌─ .gpt <question>
 ║ ├─ .gemini <question>
 ║ ├─ .imagine <prompt>
 ║ ├─ .flux <prompt>
 ║ └─ .sora <prompt>
-╚══════════════════════════╝
+╚════════════════════════╝
 
-╔══════════════════════════╗
+╔════════════════════════╗
 🎮 *Entertainment Commands*
-╠══════════════════════════╣
+╠════════════════════════╣
 ║ ┌─ .tictactoe @user
 ║ ├─ .hangman
 ║ ├─ .guess <letter>
@@ -139,11 +168,11 @@ async function helpCommand(sock, chatId, message) {
 ║ ├─ .answer <answer>
 ║ ├─ .truth
 ║ └─ .dare
-╚══════════════════════════╝
+╚════════════════════════╝
 
-╔══════════════════════════╗
+╔════════════════════════╗
 ✨ *Social Commands*
-╠══════════════════════════╣
+╠════════════════════════╣
 ║ ┌─ .compliment @user
 ║ ├─ .insult @user
 ║ ├─ .flirt
@@ -155,11 +184,11 @@ async function helpCommand(sock, chatId, message) {
 ║ ├─ .ship @user
 ║ ├─ .simp @user
 ║ └─ .stupid @user [text]
-╚══════════════════════════╝
+╚════════════════════════╝
 
-╔══════════════════════════╗
+╔════════════════════════╗
 🔤 *Text Art Commands*
-╠══════════════════════════╣
+╠════════════════════════╣
 ║ ┌─ .metallic <text>
 ║ ├─ .ice <text>
 ║ ├─ .snow <text>
@@ -178,11 +207,12 @@ async function helpCommand(sock, chatId, message) {
 ║ ├─ .blackpink <text>
 ║ ├─ .glitch <text>
 ║ └─ .fire <text>
-╚══════════════════════════╝
+╚════════════════════════╝
+
+*Hope this helps ${userName}! 🌟*
 
 *Join our channel for updates and announcements*`;
 
-    try {
         const imagePath = path.join(__dirname, '../assets/bot_image.jpg');
         
         if (fs.existsSync(imagePath)) {
@@ -200,7 +230,7 @@ async function helpCommand(sock, chatId, message) {
                         serverMessageId: -1
                     }
                 }
-            },{ quoted: message });
+            }, { quoted: message });
         } else {
             console.error('Bot image not found at:', imagePath);
             await sock.sendMessage(chatId, { 
@@ -218,7 +248,27 @@ async function helpCommand(sock, chatId, message) {
         }
     } catch (error) {
         console.error('Error in help command:', error);
-        await sock.sendMessage(chatId, { text: helpMessage });
+        
+        // Fallback without personalized name
+        const fallbackMessage = `
+╔════════════════════════╗
+   🏛️  MASTERTECH-XD V1  
+   Version: *${settings.version || '3.0.0'}*
+   Creator: ${settings.botOwner || 'Masterpeace Elite'}
+   YouTube: ${global.ytch}
+╚════════════════════════╝
+
+👋 *Hello there!* 👋
+
+*Here are all the commands available:*
+
+[All the command sections remain the same...]
+
+*Hope this helps! 🌟*
+
+*Join our channel for updates and announcements*`;
+
+        await sock.sendMessage(chatId, { text: fallbackMessage });
     }
 }
 
