@@ -3,33 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 async function helpCommand(sock, chatId, message) {
-    try {
-        // Get user's name who sent the command
-        let userName = 'User';
-        if (message.key.participant) {
-            // Group message - try to get sender's name
-            try {
-                const participant = message.key.participant;
-                const contact = await sock.store.contacts[participant];
-                userName = contact?.name || contact?.notify || contact?.verifiedName || 'User';
-            } catch (error) {
-                console.log('Could not fetch participant name:', error);
-            }
-        } else if (message.key.remoteJid) {
-            // Private message - try to get sender's name
-            try {
-                const sender = message.key.remoteJid;
-                const contact = await sock.store.contacts[sender];
-                userName = contact?.name || contact?.notify || contact?.verifiedName || 'User';
-            } catch (error) {
-                console.log('Could not fetch sender name:', error);
-            }
-        }
-
-        // Extract first name only
-        userName = userName.split(' ')[0] || 'User';
-
-        const helpMessage = `
+    const helpMessage = `
 ╔════════════════════════╗
    🏛️  MASTERTECH-XD V1  
    Version: *${settings.version || '3.0.0'}*
@@ -37,9 +11,7 @@ async function helpCommand(sock, chatId, message) {
    YouTube: ${global.ytch}
 ╚════════════════════════╝
 
-👋 *Hello ${userName}!* 👋
-
-*Here are all the commands available:*
+*Command Compendium*
 
 ╔════════════════════════╗
 🌐 *General Commands*
@@ -63,8 +35,7 @@ async function helpCommand(sock, chatId, message) {
 ║ ├─ .trt <text> <lang>
 ║ ├─ .ss <link>
 ║ ├─ .jid
-║ ├─ .url
-║ └─ .hello
+║ └─ .url
 ╚════════════════════════╝
 
 ╔════════════════════════╗
@@ -209,10 +180,9 @@ async function helpCommand(sock, chatId, message) {
 ║ └─ .fire <text>
 ╚════════════════════════╝
 
-*Hope this helps ${userName}! 🌟*
-
 *Join our channel for updates and announcements*`;
 
+    try {
         const imagePath = path.join(__dirname, '../assets/bot_image.jpg');
         
         if (fs.existsSync(imagePath)) {
@@ -230,7 +200,7 @@ async function helpCommand(sock, chatId, message) {
                         serverMessageId: -1
                     }
                 }
-            }, { quoted: message });
+            },{ quoted: message });
         } else {
             console.error('Bot image not found at:', imagePath);
             await sock.sendMessage(chatId, { 
@@ -248,27 +218,7 @@ async function helpCommand(sock, chatId, message) {
         }
     } catch (error) {
         console.error('Error in help command:', error);
-        
-        // Fallback without personalized name
-        const fallbackMessage = `
-╔════════════════════════╗
-   🏛️  MASTERTECH-XD V1  
-   Version: *${settings.version || '3.0.0'}*
-   Creator: ${settings.botOwner || 'Masterpeace Elite'}
-   YouTube: ${global.ytch}
-╚════════════════════════╝
-
-👋 *Hello there!* 👋
-
-*Here are all the commands available:*
-
-[All the command sections remain the same...]
-
-*Hope this helps! 🌟*
-
-*Join our channel for updates and announcements*`;
-
-        await sock.sendMessage(chatId, { text: fallbackMessage });
+        await sock.sendMessage(chatId, { text: helpMessage });
     }
 }
 
